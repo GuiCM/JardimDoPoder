@@ -74,14 +74,8 @@ public class Attacker : MonoBehaviour
         
         if (currentLife <= 0) //DEAD!
         {
-            Spawner.numMonstersAliveInLevel--;
-            graphicsInterface.RefreshMonsterRemainingBar(Spawner.numMonstersAliveInLevel, spawner.maxNumMonstersOfLevel);
-
-            if (spawner.CheckIfLevelIsFinished())
-                spawner.LevelFinished();
-
+            spawner.SubtractMonstersAlive();
             GenerateStars();
-
             Destroy(gameObject);
         }
     }

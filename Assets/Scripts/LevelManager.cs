@@ -3,17 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class LevelManager : MonoBehaviour {
+    private LevelInfo[] levelInfoCollection;
     //Parte do singleton
-    //public static LevelManager levelManager;
+    public static LevelManager levelManager;
 
     //Por meio desta variável que eu sei qual level eu preciso carregar
-    public static int level = 0;
+    public int level = 0;
 
     private void Awake()
     {
-        /**
-         * Singleton
-         *
         if (levelManager != null && levelManager != this)
         {
             Destroy(this.gameObject);
@@ -22,9 +20,17 @@ public class LevelManager : MonoBehaviour {
 
         levelManager = this;
         DontDestroyOnLoad(gameObject);
-        
-         **/
+        InitializeLevelCollection();
     }
 
+    private void InitializeLevelCollection()
+    {
+        levelInfoCollection = new LevelInfo[10];
 
+    }
+
+    public LevelInfo NextLevelInformations()
+    {
+        return levelInfoCollection[level];
+    }
 }

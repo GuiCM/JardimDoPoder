@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class GraphicsInterface : MonoBehaviour
 {
+    public enum MessageType { }
     [SerializeField] private GameObject panelBgToInformations;
     [SerializeField] private GameObject[] imgsTexts;
     private GameObject canvasInformations;
@@ -34,6 +35,11 @@ public class GraphicsInterface : MonoBehaviour
         float deadMonstersAmount = maxNumMonstersOfLevel - numMonstersAlive;
         imgBarMRFilled.fillAmount = deadMonstersAmount / maxNumMonstersOfLevel;
         txtMonstersRemaining.text = deadMonstersAmount + "/" + maxNumMonstersOfLevel;
+    }
+
+    public void ResetMonsterRemainingBar()
+    {
+        imgBarMRFilled.fillAmount = 0f;
     }
 
     #region "Mensagens em tempo de jogo"

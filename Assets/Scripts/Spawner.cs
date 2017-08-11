@@ -5,26 +5,29 @@ public class Spawner : MonoBehaviour
 {
     [SerializeField] private GameObject[] attackers;
 
-    private float currentTime = 0f;
     private float spawnTime;
+    private float currentTime;
+    private float countdownToNewLevelBegin;
     private int monstersSpawned;
-    private bool canSpawn = false;
+    private bool canSpawn;
+    private LevelInfo actualLevel;
+    //Referências
     private GameObject parent;
     private GraphicsInterface graphicsInterface;
     private FieldControl fieldControl;
     private Player player;
+    private LevelManager levelManager;
 
     public delegate void Method();
-
-    public static int level;
-    public static int numMonstersAliveInLevel;
-    public int maxNumMonstersOfLevel;
+    public int numMonstersAliveInLevel;
+    //public int maxNumMonstersOfLevel;
 
     private void Start()
     {
         graphicsInterface = GameObject.FindObjectOfType<GraphicsInterface>();
         fieldControl = GameObject.FindObjectOfType<FieldControl>();
         player = GameObject.FindObjectOfType<Player>();
+        levelManager = GameObject.FindObjectOfType<LevelManager>();
 
         parent = GameObject.Find("Attackers");
         if (!parent)
@@ -33,15 +36,18 @@ public class Spawner : MonoBehaviour
             parent.transform.position.Set(0f, 0f, 0f);
         }
 
-        spawnTime = 5f;
-        GenerateLevelInformations();
-        NewLevelStarts();
+        spawnTime = 5f; //Depois que um novo level iniciar, após este tempo os monstros começarão a surgir
+        countdownToNewLevelBegin = 8f; //Depois que um level acabar, após este tempo um novo level irá iniciar
+        currentTime = 0f;
+        monstersSpawned = 0;
+        canSpawn = false;
+
+        LoadNextLevelInfo();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (canSpawn && monstersSpawned < maxNumMonstersOfLevel)
+        if (canSpawn && (monstersSpawned < actualLevel.AttackersAmount))
         {
             currentTime += Time.deltaTime;
             if (currentTime > spawnTime)
@@ -49,17 +55,15 @@ public class Spawner : MonoBehaviour
         }
     }
 
-    IEnumerator CooldownToStartSpawn(Method method, float time)
+    private void LoadNextLevelInfo()
     {
-        yield return new WaitForSeconds(time);
-        method();
+        actualLevel = levelManager.NextLevelInformations();
     }
 
     private void NewLevelStarts()
     {
         graphicsInterface.ShowInfoOnScreen(0, true);
-
-        StartCoroutine(CooldownToStartSpawn(StartSpawn, 10f));
+        StartCoroutine(CountdownToStartSpawn(StartSpawn, 10f));
     }
 
     private void StartSpawn()
@@ -70,7 +74,7 @@ public class Spawner : MonoBehaviour
 
     public void LevelFinished()
     {
-        //Just for now
+        //Limpa os defenders do mapa
         GameObject defenders = GameObject.Find("Defenders");
         for (int i = 0; i < defenders.transform.childCount; i++)
         {
@@ -78,41 +82,53 @@ public class Spawner : MonoBehaviour
             Destroy(toDestroy, 3f);
         }
 
+        //Limpa os projéteis que sobraram (se sobrarem)
         GameObject projectiles = GameObject.Find("Projectiles");
         Destroy(projectiles, 2f);
 
+        //Limpa o campo
         fieldControl.CleanField();
-        //player.DiscountStars(50f);
 
         //Gera/puxa as informações do próximo level
-        GenerateLevelInformations();
+        actualLevel = levelManager.NextLevelInformations();
 
-        graphicsInterface.RefreshMonsterRemainingBar(numMonstersAliveInLevel, maxNumMonstersOfLevel);
+        graphicsInterface.ResetMonsterRemainingBar();
         graphicsInterface.ShowInfoOnScreen(2, false); //Mostra mensagem na tela que acabou o level atual
-        StartCoroutine(CooldownToNewLevelStart()); //Espera 5 segundos para começar o novo level
+        StartCoroutine(CountdownToNewLevelStart(countdownToNewLevelBegin)); //Espera 5 segundos para começar o novo level
     }
 
-    IEnumerator CooldownToNewLevelStart()
+    public void SubtractMonstersAlive()
     {
-        yield return new WaitForSeconds(8f);
-        NewLevelStarts();
+        numMonstersAliveInLevel--;
+        graphicsInterface.RefreshMonsterRemainingBar(numMonstersAliveInLevel, actualLevel.AttackersAmount);
+
+        if (numMonstersAliveInLevel == 0)
+            LevelFinished();
     }
 
-    public bool CheckIfLevelIsFinished()
-    {
-        return numMonstersAliveInLevel == 0;
-    }
-
-    private void SpawnMonsterInLine()
+    private void SpawnMonsterInLine(int lineMin, int lineMax)
     {
         int enemyIndex = Random.Range(0, 2);
-        int lineToSpawn = Random.Range(2, 5);
+        int lineToSpawn = Random.Range(lineMin, lineMax + 1);
 
         Instantiate(attackers[enemyIndex], new Vector3(10f, lineToSpawn, 0), Quaternion.identity, parent.transform);
-
         monstersSpawned++;
         currentTime = 0f;
 
-        spawnTime = Random.Range(10f, 15f);
+        spawnTime = Random.Range(actualLevel.AttackerTimeRateMin, actualLevel.AttackerTimeRateMax);
+    }
+
+    //////////////////Co-rotinas//////////////////
+
+    IEnumerator CountdownToStartSpawn(Method method, float time)
+    {
+        yield return new WaitForSeconds(time);
+        method();
+    }
+
+    IEnumerator CountdownToNewLevelStart(float time)
+    {
+        yield return new WaitForSeconds(time);
+        NewLevelStarts();
     }
 }
