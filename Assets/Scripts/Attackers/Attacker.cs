@@ -6,6 +6,7 @@ public class Attacker : MonoBehaviour
 {
     [SerializeField] private GameObject star;
     [SerializeField] private float life;
+    private float currentLife;
     private float currentSpeed = 0f; //Velocidade atual (Pode sofrer com modificadores (Ex.: Slow))
     private float speedAux = 0f; //Guarda o valor da última velocidade
     private Spawner spawner;
@@ -15,8 +16,7 @@ public class Attacker : MonoBehaviour
     protected Animator anim;
     protected GameObject currentTarget;
 
-    [Range(0f, 3f)] public float normalSpeed; //Velocidade normal SEM nenhum modificador (Ex.: Sem slow)
-    public float currentLife;
+    [Range(0f, 3f)] public float normalSpeed; //Velocidade normal SEM nenhum modificador (Ex.: Sem slow)  
 
     public float CurrentSpeed
     {

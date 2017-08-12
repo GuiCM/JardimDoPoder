@@ -4,7 +4,8 @@ using UnityEngine.UI;
 
 public class GraphicsInterface : MonoBehaviour
 {
-    public enum MessageType { }
+    public enum MessageType { HordeTimeRemaining = 0, HordeComing, LevelFinished }
+
     [SerializeField] private GameObject panelBgToInformations;
     [SerializeField] private GameObject[] imgsTexts;
     private GameObject canvasInformations;
@@ -68,7 +69,7 @@ public class GraphicsInterface : MonoBehaviour
     /// </summary>
     /// <param name="indexMessage">The index of the image to show in the array of images</param>
     /// <param name="hasBackground">Controls if the message have background</param>
-    public void ShowInfoOnScreen(int indexMessage, bool hasBackground)
+    public void ShowInfoOnScreen(MessageType type, bool hasBackground)
     {
         if (hasBackground)
         {
@@ -76,7 +77,8 @@ public class GraphicsInterface : MonoBehaviour
             Destroy(newPanel, 6f);
         }
 
-        GameObject newMessage = Instantiate(imgsTexts[indexMessage], canvasInformations.transform);
+        Debug.Log((int)type);
+        GameObject newMessage = Instantiate(imgsTexts[(int)type], canvasInformations.transform);
         Destroy(newMessage, 6f);
     }
 }
