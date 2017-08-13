@@ -4,7 +4,9 @@ public class Defender : MonoBehaviour
 {
     public enum DefenderType { Cactus = 0, Gnome, Gravestone, NotShooter = 99 }
 
+    [SerializeField] private GameObject damageTextHit;
     private GameObject parent;
+    private GameObject parentDamageSystem;
     private int layerMaskRayCast;
     private float distanceRay;
     private Vector3 initialRayPosition;
@@ -37,6 +39,14 @@ public class Defender : MonoBehaviour
         {
             parent = new GameObject("Projectiles");
             parent.transform.position.Set(0f, 0f, 0f);
+        }
+
+        parentDamageSystem = GameObject.Find("DamageSystem");
+
+        if (!parentDamageSystem)
+        {
+            parentDamageSystem = new GameObject("DamageSystem");
+            parentDamageSystem.transform.position.Set(0f, 0f, 0f);
         }
 
         currentLife = life;
@@ -75,6 +85,7 @@ public class Defender : MonoBehaviour
     public void ReceiveDamage(float amount)
     {
         currentLife -= amount;
+        DisplayTextDamage((int)amount);
 
         if (currentLife <= 0) //DEAD!
         {
@@ -82,5 +93,15 @@ public class Defender : MonoBehaviour
             FieldControl.field[(int)transform.position.x - 1, (int)transform.position.y - 1] = false;
             Destroy(gameObject);          
         }
+    }
+
+    private void DisplayTextDamage(int amount)
+    {
+        Vector3 pos = transform.position;
+        pos.x -= 0.25f;
+        pos.y += 0.35f;
+        GameObject newDamageHit = Instantiate(damageTextHit, pos, Quaternion.identity, parentDamageSystem.transform);
+        newDamageHit.GetComponentInChildren<TextMesh>().text = "-" + amount;
+        Destroy(newDamageHit, 2f);
     }
 }

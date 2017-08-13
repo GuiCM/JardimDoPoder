@@ -41,6 +41,7 @@ public class GraphicsInterface : MonoBehaviour
     public void ResetMonsterRemainingBar()
     {
         imgBarMRFilled.fillAmount = 0f;
+        txtMonstersRemaining.text = "";
     }
 
     #region "Mensagens em tempo de jogo"
@@ -77,7 +78,6 @@ public class GraphicsInterface : MonoBehaviour
             Destroy(newPanel, 6f);
         }
 
-        Debug.Log((int)type);
         GameObject newMessage = Instantiate(imgsTexts[(int)type], canvasInformations.transform);
         Destroy(newMessage, 6f);
     }

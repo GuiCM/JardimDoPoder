@@ -12,7 +12,7 @@ public class LevelManager : MonoBehaviour {
 
     private void Awake()
     {
-        if (levelManager != null && levelManager != this)
+        if (levelManager != null /* && levelManager != this*/)
         {
             Destroy(this.gameObject);
             return;

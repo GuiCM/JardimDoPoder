@@ -5,12 +5,14 @@ using UnityEngine;
 public class Attacker : MonoBehaviour
 {
     [SerializeField] private GameObject star;
+    [SerializeField] private GameObject damageTextHit;
     [SerializeField] private float life;
     private float currentLife;
     private float currentSpeed = 0f; //Velocidade atual (Pode sofrer com modificadores (Ex.: Slow))
     private float speedAux = 0f; //Guarda o valor da última velocidade
     private Spawner spawner;
     private GraphicsInterface graphicsInterface;
+    private GameObject parentDamageSystem;
 
     [SerializeField] protected float damageCaused;
     protected Animator anim;
@@ -27,6 +29,14 @@ public class Attacker : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        parentDamageSystem = GameObject.Find("DamageSystem");
+
+        if (!parentDamageSystem)
+        {
+            parentDamageSystem = new GameObject("DamageSystem");
+            parentDamageSystem.transform.position.Set(0f, 0f, 0f);
+        }
+
         spawner = GameObject.FindObjectOfType<Spawner>();
         graphicsInterface = GameObject.FindObjectOfType<GraphicsInterface>();
 
@@ -71,6 +81,7 @@ public class Attacker : MonoBehaviour
     public void ReceiveDamage(float amount)
     {
         currentLife -= amount;
+        DisplayTextDamage((int)amount);
         
         if (currentLife <= 0) //DEAD!
         {
@@ -85,7 +96,17 @@ public class Attacker : MonoBehaviour
         int randomValue = Random.Range(1, 101);
 
         if (randomValue < 16)
-            Instantiate(star, transform.position, Quaternion.identity);
+            Instantiate(star, transform.position, Quaternion.identity);       
+    }
+
+    private void DisplayTextDamage(int amount)
+    {
+        Vector3 pos = transform.position;
+        pos.x -= 0.25f;
+        pos.y += 0.35f;
+        GameObject newDamageHit = Instantiate(damageTextHit, pos, Quaternion.identity, parentDamageSystem.transform);
+        newDamageHit.GetComponentInChildren<TextMesh>().text = "-" + amount;
+        Destroy(newDamageHit, 2f);
     }
 
     #region "Usados no Animator para controle de movimento"

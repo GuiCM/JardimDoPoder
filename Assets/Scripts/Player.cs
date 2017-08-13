@@ -19,7 +19,7 @@ public class Player : MonoBehaviour
     {
         graphicsInterface = GetComponent<GraphicsInterface>();
 
-        AddStars(30);
+        AddStars(40);
     }
 
     public void AddStars(int amount)
